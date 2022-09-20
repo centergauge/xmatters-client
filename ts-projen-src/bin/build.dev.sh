@@ -1,4 +1,4 @@
 
 
 
-tsc 
+npx projen build    
