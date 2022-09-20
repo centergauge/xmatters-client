@@ -9,7 +9,7 @@ const compilerOptions: javascript.TypeScriptCompilerOptions = {
     inlineSourceMap: true,
     inlineSources: true,
     lib: [
-      "es2022"
+      "ES2022"
     ],
     module: "CommonJS",
     noEmitOnError: false,
