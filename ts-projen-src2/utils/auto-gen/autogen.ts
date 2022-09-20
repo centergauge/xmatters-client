@@ -13,11 +13,11 @@ const modelData: Array<{name: string, subComponents: Array<string>}> = await pup
     await page.goto('https://help.xmatters.com/xmapi/index.html');
     await page.waitForSelector('ul.tocify-header');
     const modelObjects = await page.evaluate(() => {
-        const modObjsArr = [];
+        const modObjsArr: Array<{name: string, subComponents: Array<string>}> = [];
         document.querySelectorAll('ul.tocify-header').forEach(a => {
-            const modObj = {
+            const modObj:{name: string, subComponents: Array<string>} = {
                 name: a.children[0].attributes['data-unique'].value,
-                subComponents: []
+                subComponents: new Array<string>()
             };
             Array.from(a.children[1].children).forEach(el => {
                 modObj.subComponents.push(el.attributes['data-unique'].value);
