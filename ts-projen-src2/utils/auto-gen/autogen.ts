@@ -9,20 +9,79 @@
 
 import puppeteer from "puppeteer";
 
-export async function FetchLatestXMattersAPIModel(): Promise<Map<string, Array<{name: string, subComponents: Array<string>}>>> {
+export class XMattersComponent {
+    name: string;
+    subComponents: Array<string>;
+
+    constructor(name: string, subComponents: Array<string> = new Array<string>()) {
+        this.name = name;
+        this.subComponents = subComponents;
+    }
+
+    public AddSubComponent(subComponent: string) {
+        if (this.subComponents === undefined || this.subComponents === null) {
+            this.subComponents = new Array<string>();
+        }
+
+        if (!this.subComponents.includes(subComponent)) {
+            this.subComponents.push(subComponent);
+        }
+    }
+    
+    public equals(other: XMattersComponent): boolean {
+        let nameEquals = this.name === other.name
+        let lenEquals = this.subComponents.length === other.subComponents.length;
+        let valueEquals = this.subComponents.every((v, i) => v === other.subComponents[i]);
+        return nameEquals && lenEquals && valueEquals;
+    }
+
+    public json(): string {
+        return JSON.stringify(this, null, 4);
+    }
+};
+
+
+export class XMattersAPIModel {
+    retrievalUrl: string;
+    retrievalDate: Date;
+
+    apiComponents: Array<XMattersComponent>;
+
+    constructor(retrievalUrl: string, retrievalDate: Date, apiComponents: Array<XMattersComponent> = new Array<XMattersComponent>()) {
+        this.retrievalUrl = retrievalUrl;
+        this.retrievalDate = retrievalDate;
+
+        this.apiComponents = apiComponents;
+    }
+
+    public equals(other: XMattersAPIModel): boolean {
+        let urlEquals = this.retrievalUrl === other.retrievalUrl;
+        let dateEquals = this.retrievalDate === other.retrievalDate;
+        let lenEquals = this.apiComponents.length === other.apiComponents.length;
+     
+        let valueEquals = this.apiComponents.every((v, i) => v.equals(other.apiComponents[i]));
+     
+        return urlEquals && dateEquals && lenEquals && valueEquals;
+    }
+
+    public json(): string {
+        return JSON.stringify(this, null, 4);
+    }
+}
+
+export async function FetchLatestXMattersAPIModel(): Promise<Map<string, Array<XMattersComponent>>> {
     const modelData: Array<{name: string, subComponents: Array<string>}> = await puppeteer.launch().then(async browser => {
         const page = await browser.newPage();
         await page.goto('https://help.xmatters.com/xmapi/index.html');
         await page.waitForSelector('ul.tocify-header');
         const modelObjects = await page.evaluate(() => {
-            const modObjsArr: Array<{name: string, subComponents: Array<string>}> = [];
+            const modObjsArr: Array<XMattersComponent> = [];
             document.querySelectorAll('ul.tocify-header').forEach(a => {
-                const modObj:{name: string, subComponents: Array<string>} = {
-                    name: a.children[0].attributes['data-unique'].value,
-                    subComponents: new Array<string>()
-                };
+                const modObj = new XMattersComponent(a.children[0].attributes['data-unique'].value);
                 Array.from(a.children[1].children).forEach(el => {
-                    modObj.subComponents.push(el.attributes['data-unique'].value);
+                    let subComponentName = el.attributes['data-unique'].value;
+                    // TODO: validate subComponent info
+                    modObj.AddSubComponent(subComponentName);
                 });
                 modObjsArr.push(modObj);
             });
@@ -33,7 +92,7 @@ export async function FetchLatestXMattersAPIModel(): Promise<Map<string, Array<{
     });
 
     // Now group the returned data for generation
-    const groupedRoots = new Map<string, Array<{name: string, subComponents: Array<string>}>>();
+    const groupedRoots = new Map<string, Array<XMattersComponent>>();
     for (let mel of modelData) {
         let unhyphenatedRoot = "";
         if (mel.name.includes('-')) {
@@ -63,7 +122,7 @@ export async function FetchLatestXMattersAPIModel(): Promise<Map<string, Array<{
             if (singularRoot in groupedRoots) {
                 groupedRoots[singularRoot].push(mel);
             } else {
-                const arr = new Array<{name: string, subComponents: Array<string>}>();
+                const arr = new Array<XMattersComponent>();
                 arr.push(mel);
                 groupedRoots[singularRoot] = arr;
             }
