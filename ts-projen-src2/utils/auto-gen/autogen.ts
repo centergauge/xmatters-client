@@ -13,7 +13,7 @@ export class XMattersComponent {
     name: string;
     subComponents: Array<string>;
 
-    constructor(name: string, subComponents: Array<string> = new Array<string>()) {
+    constructor(name: string = "", subComponents: Array<string> = new Array<string>()) {
         this.name = name;
         this.subComponents = subComponents;
     }
@@ -69,19 +69,35 @@ export class XMattersAPIModel {
     }
 }
 
-export async function FetchLatestXMattersAPIModel(): Promise<Map<string, Array<XMattersComponent>>> {
+export async function FetchLatestXMattersAPIData(): Promise<Map<string, Array<{name: string, subComponents: Array<string>}>>> {
     const modelData: Array<{name: string, subComponents: Array<string>}> = await puppeteer.launch().then(async browser => {
         const page = await browser.newPage();
+
+
         await page.goto('https://help.xmatters.com/xmapi/index.html');
         await page.waitForSelector('ul.tocify-header');
-        const modelObjects = await page.evaluate(() => {
-            const modObjsArr: Array<XMattersComponent> = [];
+        console.log('Page loaded');
+        console.log('\t page.url: ', page.url());
+        
+        
+        const modelObjects = await page.evaluate(async () => {
+            console.log('starting page.evaluate');
+            const modObjsArr: Array<{name: string, subComponents: Array<string>}> = [];
+
+            console.log('running document.querySelectorAll');
             document.querySelectorAll('ul.tocify-header').forEach(a => {
-                const modObj = new XMattersComponent(a.children[0].attributes['data-unique'].value);
+                let val = a.children[0].attributes['data-unique'].value;
+                console.log('\t val: ', val);
+
+                // const modObj = new XMattersComponent();
+                // {name: string, subComponents: Array<string>} 
+                let modObj = {name: val, subComponents: []};
+                modObj.name = val;
                 Array.from(a.children[1].children).forEach(el => {
                     let subComponentName = el.attributes['data-unique'].value;
                     // TODO: validate subComponent info
-                    modObj.AddSubComponent(subComponentName);
+                    modObj.subComponents.push(subComponentName);
+                    // modObj.AddSubComponent(subComponentName);
                 });
                 modObjsArr.push(modObj);
             });
@@ -122,7 +138,7 @@ export async function FetchLatestXMattersAPIModel(): Promise<Map<string, Array<X
             if (singularRoot in groupedRoots) {
                 groupedRoots[singularRoot].push(mel);
             } else {
-                const arr = new Array<XMattersComponent>();
+                const arr = new Array<{name: string, subComponents: Array<string>}>();
                 arr.push(mel);
                 groupedRoots[singularRoot] = arr;
             }
@@ -134,5 +150,8 @@ export async function FetchLatestXMattersAPIModel(): Promise<Map<string, Array<X
     return groupedRoots;
 }
 
-let apiModel = await FetchLatestXMattersAPIModel();
-console.log(JSON.stringify(apiModel, null, 4))
+// GenerateCodeFromData()
+
+let apiModel = await FetchLatestXMattersAPIData();
+let jsonStr = JSON.stringify(apiModel, null, 4);
+console.log(jsonStr);

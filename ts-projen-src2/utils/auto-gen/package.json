@@ -5,8 +5,10 @@
     "@types/jsdom": "^20.0.0",
     "@types/puppeteer": "^5.4.6",
     "axios": "^0.27.2",
+    "chromium-revision": "^1.0.0",
     "jsdom": "^20.0.0",
     "jsdom-devtools-formatter": "^1.0.0",
-    "puppeteer": "^18.0.3"
+    "puppeteer": "^18.2.1",
+    "puppeteer-core": "^19.0.0"
   }
 }

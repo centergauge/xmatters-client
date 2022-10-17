@@ -1,6 +1,7 @@
+import { APIProvider } from "./apiprovider";
 
 export class XMattersClient {
-    private readonly _api: string;
+    // private readonly _api: string;
     private readonly _apiVersion: string;
     private readonly _apiUrl: string;
     private readonly _apiKey: string;
@@ -9,11 +10,12 @@ export class XMattersClient {
         this._apiUrl = apiUrl;
         this._apiKey = apiKey;
         this._apiVersion = apiVersion;
-        this._api = ' '; // new Api(apiUrl, apiKey, apiVersion);
+        // this._api = ' '; // new Api(apiUrl, apiKey, apiVersion);
     }
 
-    public get api(): string {
-        return this._api;
+    public get api(): APIProvider {
+        return new APIProvider();
+        // return this._api;
     }
 
     public get apiVersion(): string {
