@@ -1,3 +1,5 @@
+import { Recipient, SelfLink } from "./common";
+
 /** 
  * Dynamic team object
  *
@@ -43,3 +45,16 @@
  *   "responseCountThreshold" : 1
  *  }
  */
+export class DynamicTeam extends Recipient {
+    responseCount: number;
+    responseCountThreshold: number;
+    useEmergencyDevice: boolean;
+
+    constructor(id: string, targetName: string, recipientType: string, externalKey: string, externallyOwned: boolean, locked: string[], links: SelfLink, responseCount: number, 
+        responseCountThreshold: number, useEmergencyDevice: boolean) {
+        super(id, targetName, recipientType, externalKey, externallyOwned, locked, "", links);
+        this.responseCount = responseCount;
+        this.responseCountThreshold = responseCountThreshold;
+        this.useEmergencyDevice = useEmergencyDevice;
+    }
+}
