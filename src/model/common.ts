@@ -61,13 +61,13 @@ export class Error {
  *     }
  * }
  */ 
-export class Pagination {
+export class Pagination<PType> {
     count: number;
     total: number;
-    data: any[];
+    data: Array<PType>;
     links: PaginationLinks;
 
-    constructor(count: number, total: number, data: any[], links: PaginationLinks) {
+    constructor(count: number, total: number, data: Array<PType>, links: PaginationLinks) {
         this.count = count;
         this.total = total;
         this.data = data;
