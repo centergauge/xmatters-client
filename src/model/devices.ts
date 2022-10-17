@@ -1,4 +1,5 @@
 import { Recipient, ReferenceById, SelfLink } from "./common";
+import { PersonReference } from "./person";
 
 /** 
  * Device objects
